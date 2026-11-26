@@ -174,6 +174,23 @@ class SettingsUpdateTest(AutomationTestCase):
         self.assertEqual(automation.last_error, "OffgridControl: connect timeout")
 
 
+class StatusTest(AutomationTestCase):
+    def test_unreachable_solar_meter_is_not_an_error(self):
+        wallbox = FakeWallbox(SupplyMode.MAINS, solar_available=False)
+        wallbox.get_status = lambda: {"mode": "mains", "solar_error": "wallboxswsolar 'Power': connect timeout"}
+        automation = self.make({"charge_mode": "instant"}, wallbox, 15)
+        automation.tick()
+        status = automation.get_status()
+        self.assertIsNone(status["last_error"])
+        self.assertIsNone(status["wallbox_error"])
+
+    def test_unreachable_mains_meter_is_reported(self):
+        wallbox = FakeWallbox(SupplyMode.OFF)
+        wallbox.get_status = lambda: {"mode": "off", "mains_error": "wallboxswmains 'Power': connect timeout"}
+        status = self.make({}, wallbox, 50).get_status()
+        self.assertEqual(status["wallbox_error"], "wallboxswmains 'Power': connect timeout")
+
+
 class PersistenceAndLoggingTest(AutomationTestCase):
     def test_legacy_keys_are_dropped(self):
         automation = self.make({}, FakeWallbox(), 50)

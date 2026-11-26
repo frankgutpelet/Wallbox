@@ -269,8 +269,9 @@ class ChargingAutomation:
             energy_error = energy_error or "OffgridControl energy data is stale"
         wallbox_measurements = self.wallbox.get_status()
         mode = SupplyMode(wallbox_measurements.get("mode", "unknown"))
-        device_errors = [wallbox_measurements.get(key) for key in ("solar_error", "mains_error") if wallbox_measurements.get(key)]
-        wallbox_error = "; ".join(device_errors) or None
+        # The solar Sonoff is powered by the inverter output and is normally
+        # unreachable while the inverter is in standby, so it is not an error.
+        wallbox_error = wallbox_measurements.get("mains_error") or None
         settings = dict(self.settings)
         window = self._deadline_window()
         elapsed = self._elapsed_seconds()
@@ -293,7 +294,8 @@ class ChargingAutomation:
             "energy_error": energy_error,
             "wallbox_measurements": wallbox_measurements,
             "wallbox_error": wallbox_error,
-            "last_error": last_error or energy_error or wallbox_error,
+            # Only real automation failures (failed tick: energy request or switch command).
+            "last_error": last_error,
         }
 
     def start_worker(self):

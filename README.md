@@ -93,7 +93,8 @@ Gelesen werden `SOC`, `PowerSolar1`, `PowerSolar2`, `InverterOutputPower` und `B
 
 ## Logging
 
-- `log/Wallbox_YYYY-MM-DD.log`: Anwendungsereignisse und Fehler. Wiederholte gleiche Fehler (z. B. Solar-Sonoff im Power-Save) werden nur beim ersten Auftreten und bei der Wiederherstellung geloggt. Details zu jedem einzelnen Fehlversuch gibt es mit `WALLBOX_LOG_LEVEL=DEBUG`.
+- `log/Wallbox_YYYY-MM-DD.log`: Anwendungsereignisse und Fehler. Wiederholte gleiche Fehler werden nur beim ersten Auftreten und bei der Wiederherstellung geloggt.
+- Der Solar-Sonoff wird vom Wechselrichter-Ausgang versorgt und ist im Wechselrichter-Standby (z. B. bei niedrigem SOC) nicht erreichbar. Das ist ein normaler Zustand: Er wird nur in der Solarzähler-Karte angezeigt und als INFO geloggt, nicht als Fehler. Details zu jedem einzelnen Fehlversuch gibt es mit `WALLBOX_LOG_LEVEL=DEBUG`.
 - `log/errorYYYY-MM-DD_HH-MM.log`: Konsolenausgabe von uvicorn (inkl. Access-Log), eine Datei pro Start über `startService.sh`.
 - Logs werden nicht automatisch gelöscht.
 

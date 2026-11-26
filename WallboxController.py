@@ -145,7 +145,11 @@ class _SonoffCommunicationWorker:
             connection_error = str(exc)
             old_error = self.snapshot().get(name + "_error")
             if old_error != connection_error:
-                self._log("Error", "{} Sonoff communication failed: {}".format(name, exc))
+                if name == "solar":
+                    # Powered by the inverter output: offline during inverter standby is normal.
+                    self._log("Info", "solar Sonoff offline (inverter standby?): {}".format(exc))
+                else:
+                    self._log("Error", "{} Sonoff communication failed: {}".format(name, exc))
             available = False
 
         energy = None
@@ -409,13 +413,13 @@ class WallboxController:
                     self._worker.solar_switch.turn_off()
                 except Exception as exc:
                     # Solar may lose power in inverter Power Save. Mains is already ON.
-                    self._worker._log("Error", "Solar switch unavailable while selecting mains: {}".format(exc))
+                    self._worker._log("Info", "Solar switch offline while selecting mains: {}".format(exc))
             else:
                 self._worker.mains_switch.turn_off()
                 try:
                     self._worker.solar_switch.turn_off()
                 except Exception as exc:
-                    self._worker._log("Error", "Solar switch could not be confirmed off: {}".format(exc))
+                    self._worker._log("Info", "Solar switch offline while switching off: {}".format(exc))
             return mode
 
         def verify_mode(_):

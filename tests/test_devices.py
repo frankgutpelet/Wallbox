@@ -84,14 +84,16 @@ class WallboxControllerTest(unittest.TestCase):
         self.addCleanup(controller.close)
         return controller
 
-    def test_unreachable_solar_logged_once(self):
+    def test_unreachable_solar_is_normal_and_logged_once_as_info(self):
         controller = self.make(solar_fail=True)
         self.assertFalse(controller.has_status())
         controller.start()
         for _ in range(4):
             controller._worker.refresh()
         self.assertTrue(controller.has_status())
-        self.assertEqual(len(self.logger.errors("solar Sonoff communication failed")), 1)
+        self.assertEqual(self.logger.errors(), [])
+        offline = [m for level, m in self.logger.lines if level == "INFO" and "solar Sonoff offline" in m]
+        self.assertEqual(len(offline), 1)
 
     def test_set_mode_mains_with_unreachable_solar(self):
         controller = self.make(solar_fail=True)

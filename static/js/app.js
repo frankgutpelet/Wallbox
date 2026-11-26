@@ -136,12 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       showMeter('solar', meters?.solar_energy, meters?.solar_available);
       showMeter('mains', meters?.mains_energy, meters?.mains_available);
-      const solarUnavailable = Boolean(meters?.solar_error);
-      connection.textContent = solarUnavailable
-        ? 'Solar-Schalter nicht erreichbar (Power Save?)'
-        : (energyAvailable ? 'OffgridControl verbunden' : 'Keine aktuellen OffgridControl-Daten');
+      // An unreachable solar meter is normal (inverter standby) and is shown only in its meter card.
+      connection.textContent = energyAvailable ? 'OffgridControl verbunden' : 'Keine aktuellen OffgridControl-Daten';
       connection.title = state.energy_error || '';
-      connectionIndicator.classList.toggle('offline', !energyAvailable || solarUnavailable);
+      connectionIndicator.classList.toggle('offline', !energyAvailable);
       if (state.last_error) {
         setFeedback(`Automatik: ${state.last_error}`, 'error', 'automation');
       } else if (feedback.dataset.source === 'automation') {
