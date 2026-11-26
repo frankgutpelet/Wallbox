@@ -1,0 +1,9 @@
+.wallbox.pid
+
+__pycache__/
+.backup/
+log/
+*.tmp
+wallbox_settings.json
+wallbox_settings.json.tmp
+*.zip
